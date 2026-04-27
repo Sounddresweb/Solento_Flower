@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections; // ¡Esencial para que funcionen las corrutinas!
+using UnityEngine.EventSystems;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -11,27 +12,16 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private CanvasGroup fadeGroup; // Aquí arrastrarás el panel del Fade
     [SerializeField] private float fadeDuration = 1.5f;
 
+    [Header("Keyboard Navigation")]
+    [SerializeField] private GameObject backButton;        // <--- NUEVO: El botón de regresar del panel de controles
+    [SerializeField] private GameObject controlsMenuButton; // <--- NUEVO: El botón de "Controles" del menú principal
+
     public void PlayGame()
     {
         // Iniciamos la transición en lugar de cargar la escena directo
         StartCoroutine(FadeAndLoad());
     }
 
-    public void OpenControls()
-    {
-        if (controlsPanel != null)
-        {
-            controlsPanel.SetActive(true);
-        }
-    }
-
-    public void CloseControls()
-    {
-        if (controlsPanel != null)
-        {
-            controlsPanel.SetActive(false);
-        }
-    }
 
     public void QuitGame()
     {
@@ -58,5 +48,29 @@ public class MainMenuManager : MonoBehaviour
 
         // Carga la escena
         SceneManager.LoadScene("Nivel_01");
+    }
+
+    public void OpenControls()
+    {
+        if (controlsPanel != null)
+        {
+            controlsPanel.SetActive(true);
+            
+            // NUEVO: Limpiamos la selección actual y ponemos el foco en el botón de regresar
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(backButton);
+        }
+    }
+
+    public void CloseControls()
+    {
+        if (controlsPanel != null)
+        {
+            controlsPanel.SetActive(false);
+            
+            // NUEVO: Al cerrar, devolvemos el foco al botón de "Controles" del menú principal
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(controlsMenuButton);
+        }
     }
 }
