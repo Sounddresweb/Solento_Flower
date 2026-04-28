@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class DisparoBasico : MonoBehaviour
 {
-    public GameObject balaPrefab;
+    // Ya no necesitamos 'balaPrefab' aquí porque el Pool lo gestiona
     public Transform puntoDisparo;
-    public float velocidadBala = 10f;
+    public float velocidadBala = 15f;
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // Click izquierdo
+        if (Input.GetMouseButtonDown(0)) 
         {
             Disparar();
         }
@@ -16,9 +16,18 @@ public class DisparoBasico : MonoBehaviour
 
     void Disparar()
     {
-        GameObject bala = Instantiate(balaPrefab, puntoDisparo.position, puntoDisparo.rotation);
+        // 1. Pedimos una bala al Pool en lugar de crear una nueva
+        GameObject bala = ObjectPooler.Instance.GetFromPool();
 
-        Rigidbody2D rb = bala.GetComponent<Rigidbody2D>();
-        rb.linearVelocity = puntoDisparo.right * velocidadBala;
+        // 2. Si recibimos una bala válida, la posicionamos
+        if (bala != null)
+        {
+            bala.transform.position = puntoDisparo.position;
+            bala.transform.rotation = puntoDisparo.rotation;
+
+            // 3. Aplicamos la velocidad
+            Rigidbody2D rb = bala.GetComponent<Rigidbody2D>();
+            rb.linearVelocity = puntoDisparo.right * velocidadBala;
+        }
     }
 }
