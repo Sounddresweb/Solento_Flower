@@ -147,7 +147,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 670730909}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -163,9 +163,9 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_SleepingMode: 0
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!61 &670730912
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -196,7 +196,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -298,8 +298,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d92a41296902aeb4b80b3ca42f288dd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemigoBasico
-  jugador: {fileID: 1098596841}
-  velocidad: 3
+  currentState: 0
+  player: {fileID: 0}
+  moveSpeed: 3
+  detectionRange: 1
+  attackRange: 1.5
+  keepChasingRange: 8
+  health: 3
+  knockbackForce: 8
+  knockbackDuration: 0.2
+  colorFlash: {r: 0.9528302, g: 0.26517445, b: 0.26517445, a: 1}
+  flashDuration: 0.1
 --- !u!1 &1007779632
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,6 +895,52 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1027973334
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1027973336}
+  - component: {fileID: 1027973335}
+  m_Layer: 0
+  m_Name: PoolManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1027973335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027973334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2214410775d814c5396eff87569167b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
+  bulletPrefab: {fileID: 3061051490128816663, guid: 71f54ff8ed5cd4902ba9e8bc3099f79e, type: 3}
+  poolSize: 20
+--- !u!4 &1027973336
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027973334}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.88521, y: -0.27828, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1032991610
 GameObject:
   m_ObjectHideFlags: 0
@@ -2482,6 +2537,7 @@ GameObject:
   - component: {fileID: 1098596843}
   - component: {fileID: 1098596845}
   - component: {fileID: 1098596846}
+  - component: {fileID: 1098596847}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2589,7 +2645,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &1098596845
 MonoBehaviour:
@@ -2603,7 +2659,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84dff474bc8691346933f32455368c76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DisparoBasico
-  balaPrefab: {fileID: 1416289879}
   puntoDisparo: {fileID: 1007779633}
   velocidadBala: 10
 --- !u!114 &1098596846
@@ -2618,7 +2673,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae2b0fe4bb7c90646a19807c90166bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovimientoPlayer
-  velocidad: 5
+  moveSpeed: 5
+  dashForce: 15
+  dashDuration: 0.2
+  dashCooldown: 1
+--- !u!70 &1098596847
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1098596838}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 21b36b70f06114f09a21eadbcff94a70, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.01, y: -0.49}
+  m_Size: {x: 1.12, y: 0.16}
+  m_Direction: 1
 --- !u!1 &1099490610
 GameObject:
   m_ObjectHideFlags: 0
@@ -2984,7 +3079,7 @@ GameObject:
   - component: {fileID: 1416289884}
   m_Layer: 0
   m_Name: Bala
-  m_TagString: Untagged
+  m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3145,9 +3240,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1416289879}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d79888298f1ce4a92c4535552d9ec5, type: 3}
+  m_Script: {fileID: 11500000, guid: be3c84bf19b0f43568396c727de7dc90, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bala
+  m_EditorClassIdentifier: Assembly-CSharp::Bullet
+  speed: 15
+  lifetime: 2
 --- !u!1 &1740425747
 GameObject:
   m_ObjectHideFlags: 0
@@ -3294,3 +3391,4 @@ SceneRoots:
   - {fileID: 1098596841}
   - {fileID: 1416289883}
   - {fileID: 670730914}
+  - {fileID: 1027973336}
